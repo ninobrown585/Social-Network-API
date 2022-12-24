@@ -1,31 +1,31 @@
-// const { Schema, model } = require("mongoose");
-const Thought = require("./Thought");
+const mongoose = require("mongoose");
+const thoughtSchema = require("./Thought");
 
-const { Schema, model } = require('mongoose');
+const { Schema, model } = require("mongoose");
+
+// Schema to create User model
 const userSchema = new Schema(
   {
     username: {
       type: String,
       required: true,
-      unique: true,
-      trim: true,
+      max_length: 50,
     },
     email: {
       type: String,
       required: true,
-      unique: true,
-      match: [/.+@.+\..+/, 'Must match an email address!'],
+      max_length: 50,
     },
-    thoughts: [
+    thought: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Thought',
+        ref: "thought",
       },
     ],
     friends: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "user",
       },
     ],
   },
@@ -36,17 +36,7 @@ const userSchema = new Schema(
     id: false,
   }
 );
-userSchema.virtual('friendCount').get(function () {
-  return this.friends.length;
-});
 
-// BONUS
-userSchema.pre("findOneAndDelete", { document: false, query: true }, async function() {
-    console.log("User pre-delete");
-    const doc = await this.model.findOne(this.getFilter());
-    console.log(doc.username);
-    await Thought.deleteMany({ username: doc.username });
-});
+const User = mongoose.model("User", userSchema);
 
-const User = model('User', userSchema);
 module.exports = User;
